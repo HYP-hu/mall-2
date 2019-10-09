@@ -41,16 +41,18 @@
       // 2: 在手指滚动的过程中侦测,手指离开后的惯性滚动中不侦测
       // 3: 只要是滚动, 都侦测
       // click: 可以监听better-scroll的按钮监听
+      // 对于button无论是否设置click: false, button都可以点击
+      // 对于div等其他元素click: true, 才可以监听点击
       // pullUpLoad 下拉加载更多
       if (this.probeType===2 || this.probeType===3){
         this.scroll.on('scroll', (position) => {
-          console.log(position);
           this.$emit('scrollPos', position)
         })
       }
       // 3.监听滚动到底部
       if (this.pullUpLoad){
         this.scroll.on('pullingUp', ()=>{
+          console.log('底部');
           this.$emit('pullingUp')
         })
       }
@@ -63,6 +65,7 @@
         this.scroll && this.scroll.refresh()
       },
       finishPullUp(){
+        // 下拉加载更多
         this.scroll && this.scroll.finishPullUp()
       },
       getScrolly(){

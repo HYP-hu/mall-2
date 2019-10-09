@@ -5,7 +5,8 @@
             ref="scroll"
             :probe-type="3"
             :pull-up-load="true"
-            @scrollPos="scrollPos">
+            @scrollPos="scrollPos"
+            @pullingUp="pullingUp">
       <home-swiper :banners="banners" />
       <recommend-view :recommends="recommends" />
       <feature-view />
@@ -15,7 +16,7 @@
         class="tab-control" />
       <goods-list :goods="showGoods" />
     </scroll>
-    <!--@click.native 父组件点击子组件触发事件-->
+    <!--@click.native 需要监听一个组件的原生事件时,必须给对应的事件加上.native修饰符,才能进行监听-->
     <back-top @click.native="backClick" v-show="isShowBackTop" />
   </div>
 </template>
@@ -31,6 +32,8 @@ import BackTop from "components/content/backTop/BackTop";
 import HomeSwiper from "./childCompos/HomeSwiper";
 import RecommendView from "./childCompos/RecommendView";
 import FeatureView from "./childCompos/FeatureView";
+
+import {debounce} from "common/utils"
 
 import { getHomeMultiData, getHomeGoods } from "../../network/home";
 
@@ -75,7 +78,13 @@ export default {
     this.__getHomeGoods("new");
     this.__getHomeGoods("sell");
   },
-  mounted() {},
+  mounted() {
+    // 3.事件总线 图片加载完成的事件监听
+    const refresh = debounce(this.$refs.scroll.refresh, 50)
+    this.$bus.$on('itemImageLoad', () => {
+      refresh()
+    })
+  },
   methods: {
     /**
      *  网络请求相关方法
@@ -113,6 +122,10 @@ export default {
     scrollPos(position){
       // 1.判断isShowBackTop是否显示
       this.isShowBackTop = (- position.y) > 1000
+    },
+    pullingUp(){
+      this.__getHomeGoods(this.currentType)
+      this.$refs.scroll.finishPullUp()
     }
   }
 };
@@ -121,7 +134,7 @@ export default {
 <style scoped>
 #home {
   height: 100vh;
-  padding-top: 44px;
+  /*padding-top: 44px;*/
   position: relative;
 }
 
@@ -140,16 +153,16 @@ export default {
   z-index: 9;
 }
   .content{
-    /*height: calc(100% - 93px);*/
     overflow: hidden;
-    /*margin-top: 51px;*/
-    /*overflow: hidden;*/
-    /*margin-top: 44px;*/
     position: absolute;
     left: 0;
     right: 0;
     top: 44px;
     bottom: 49px;
-
   }
+  /*.content{*/
+  /*  height: calc(100% - 93px);*/
+  /*  overflow: hidden;*/
+  /*  margin-top: 44px;*/
+  /*}*/
 </style>
