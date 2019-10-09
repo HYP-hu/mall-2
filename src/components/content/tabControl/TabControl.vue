@@ -14,6 +14,7 @@
     name: "TabControl",
     props: {
       titles: {
+        type: Array,
         default(){
           return []
         }

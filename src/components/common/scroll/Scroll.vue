@@ -68,7 +68,8 @@ export default {
       // 下拉加载更多
       this.scroll && this.scroll.finishPullUp();
     },
-    getScrolly() {
+    getScrollY() {
+      // 获取Y的位置
       return this.scroll ? this.scroll.y : 0;
     }
   }

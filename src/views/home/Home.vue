@@ -1,6 +1,13 @@
 <template>
   <div id="home" class="wrapper">
     <nav-bar class="home-nav"><div slot="center">购物街</div></nav-bar>
+    <tab-control
+      :titles="['流行', '新款', '精选']"
+      @tabClick="tabClick"
+      class="tab-control1"
+      v-show="isTabFixed"
+      ref="tabControl1"
+    />
     <scroll
       class="content"
       ref="scroll"
@@ -9,13 +16,14 @@
       @scrollPos="scrollPos"
       @pullingUp="pullingUp"
     >
-      <home-swiper :banners="banners" />
-      <recommend-view :recommends="recommends" />
-      <feature-view />
+      <home-swiper :banners="banners" ref="homeSwiper" />
+      <recommend-view :recommends="recommends" ref="recommendView" />
+      <feature-view ref="featureView" />
       <tab-control
         :titles="['流行', '新款', '精选']"
         @tabClick="tabClick"
         class="tab-control"
+        ref="tabControl2"
       />
       <goods-list :goods="showGoods" />
     </scroll>
@@ -58,7 +66,9 @@ export default {
       recommends: [],
       currentType: "pop",
       isShowBackTop: false,
-      scrollY: 0,
+      tabOffsetTop: 0, // tabControl组件元素顶边的数据
+      isTabFixed: false, //是否吸顶
+      scrollY: 0, // 保存滑动的位置，
       goods: {
         pop: { page: 0, list: [], endStatus: false },
         new: { page: 0, list: [], endStatus: false },
@@ -80,12 +90,28 @@ export default {
     this.__getHomeGoods("new");
     this.__getHomeGoods("sell");
   },
+  activated(){
+    this.$refs.scroll.refresh()
+    this.$refs.scroll.scrollTo(0, this.scrollY, 0)
+  },
+  deactivated(){
+    this.scrollY = this.$refs.scroll.getScrollY()
+  },
   mounted() {
     // 3.事件总线 图片加载完成的事件监听
     // 解决可滚动区域 scrollerHeight属性的大小
     const refresh = debounce(this.$refs.scroll.refresh, 50);
     this.$bus.$on("itemImageLoad", () => {
       refresh();
+    });
+
+    // 获取tabControl的offsetTop
+    // 所有的组件都有一个属性$el; 用于获取组件中的元素
+    // $nextTick的使用在组件属性渲染完成后再执行，比如添加组件并设置颜色，
+    // 设置颜色可以写在$nextTick中
+    this.$nextTick(() => {
+      // 此处$nextTick并无作用只是为了学习
+      this.getTabControlOffsetTop();
     });
   },
   methods: {
@@ -99,15 +125,15 @@ export default {
       });
     },
     __getHomeGoods(type) {
-      let page = this.goods[type].page + 1;
-      page = 50;
+      const page = this.goods[type].page + 1;
       getHomeGoods(type, page)
         .then(res => {
-          console.log(res);
           this.goods[type].list.push(...res.data.list);
           // apply的特殊用法
           // Array.prototype.push.apply(this.goods[type].list, res.data.list)
           this.goods[type].page = page;
+          // 完成上拉加载更多
+          this.$refs.scroll.finishPullUp();
         })
         .catch(err => {
           // 数据加载完成
@@ -124,7 +150,12 @@ export default {
           break;
         case 2:
           this.currentType = "sell";
+          break
       }
+      // 改变tabControl组件中currentIndex的值, 如果采用props传值的方式改变index不推荐
+      // 父组件不要改变子组件的值, 要让子组件自己改变
+      this.$refs.tabControl1.currentIndex = index;
+      this.$refs.tabControl2.currentIndex = index;
     },
     backClick() {
       this.$refs.scroll.scrollTo(0, 0);
@@ -132,10 +163,28 @@ export default {
     scrollPos(position) {
       // 1.判断isShowBackTop是否显示
       this.isShowBackTop = -position.y > 1000;
+      // 2.决定tabControl是否吸顶
+      // 取整的方法
+      // 1、 Math.ceil(-position.y)
+      // 2、 0 || -position.y
+      // 3、 parseInt(-position.y)
+      this.isTabFixed = -position.y >= this.tabOffsetTop
     },
     pullingUp() {
       this.__getHomeGoods(this.currentType);
-      this.$refs.scroll.finishPullUp();
+    },
+    getTabControlOffsetTop() {
+      this.$refs.homeSwiper.$on("swiperImageLoad", () => {
+        this.tabOffsetTop = this.$refs.tabControl2.$el.offsetTop;
+      });
+
+      this.$refs.featureView.$on("featureImageLoad", () => {
+        this.tabOffsetTop = this.$refs.tabControl2.$el.offsetTop;
+      });
+
+      this.$refs.recommendView.$on("recommendImageLoad", () => {
+        this.tabOffsetTop = this.$refs.tabControl2.$el.offsetTop;
+      });
     }
   }
 };
@@ -151,17 +200,32 @@ export default {
 .home-nav {
   background-color: var(--color-tint);
   color: #fff;
-  position: fixed;
-  left: 0;
-  right: 0;
-  top: 0;
-  z-index: 9;
+  /*在使用浏览器原生滚动时,为了让导航不跟随一起滚动 */
+  /*position: fixed;*/
+  /*left: 0;*/
+  /*right: 0;*/
+  /*top: 0;*/
+  /*z-index: 9;*/
 }
-.tab-control {
-  position: sticky;
-  top: 44px;
+.tab-control1{
+  /* 方法一*/
+  position: relative;
+  /*z-index只对定位的元素起效果*/
   z-index: 9;
+  /*方法二*/
+  /*z-index: 9;*/
+  /*position: fixed;*/
+  /*left: 0;*/
+  /*right: 0;*/
+  /*top: 44px;*/
+
 }
+/*.tab-control {*/
+/*原生浏览器*/
+/*  position: sticky;*/
+/*  top: 44px;*/
+/*  z-index: 9;*/
+/*}*/
 .content {
   overflow: hidden;
   position: absolute;
