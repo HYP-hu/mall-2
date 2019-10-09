@@ -1,19 +1,22 @@
 <template>
   <div id="home" class="wrapper">
     <nav-bar class="home-nav"><div slot="center">购物街</div></nav-bar>
-    <scroll class="content"
-            ref="scroll"
-            :probe-type="3"
-            :pull-up-load="true"
-            @scrollPos="scrollPos"
-            @pullingUp="pullingUp">
+    <scroll
+      class="content"
+      ref="scroll"
+      :probe-type="3"
+      :pull-up-load="true"
+      @scrollPos="scrollPos"
+      @pullingUp="pullingUp"
+    >
       <home-swiper :banners="banners" />
       <recommend-view :recommends="recommends" />
       <feature-view />
       <tab-control
         :titles="['流行', '新款', '精选']"
         @tabClick="tabClick"
-        class="tab-control" />
+        class="tab-control"
+      />
       <goods-list :goods="showGoods" />
     </scroll>
     <!--@click.native 需要监听一个组件的原生事件时,必须给对应的事件加上.native修饰符,才能进行监听-->
@@ -33,10 +36,9 @@ import HomeSwiper from "./childCompos/HomeSwiper";
 import RecommendView from "./childCompos/RecommendView";
 import FeatureView from "./childCompos/FeatureView";
 
-import {debounce} from "common/utils"
+import { debounce } from "common/utils";
 
 import { getHomeMultiData, getHomeGoods } from "../../network/home";
-
 
 export default {
   name: "Home",
@@ -58,9 +60,9 @@ export default {
       isShowBackTop: false,
       scrollY: 0,
       goods: {
-        pop: { page: 0, list: [], end: false },
-        new: { page: 0, list: [], end: false },
-        sell: { page: 0, list: [], end: false }
+        pop: { page: 0, list: [], endStatus: false },
+        new: { page: 0, list: [], endStatus: false },
+        sell: { page: 0, list: [], endStatus: false }
       }
     };
   },
@@ -80,10 +82,11 @@ export default {
   },
   mounted() {
     // 3.事件总线 图片加载完成的事件监听
-    const refresh = debounce(this.$refs.scroll.refresh, 50)
-    this.$bus.$on('itemImageLoad', () => {
-      refresh()
-    })
+    // 解决可滚动区域 scrollerHeight属性的大小
+    const refresh = debounce(this.$refs.scroll.refresh, 50);
+    this.$bus.$on("itemImageLoad", () => {
+      refresh();
+    });
   },
   methods: {
     /**
@@ -96,13 +99,20 @@ export default {
       });
     },
     __getHomeGoods(type) {
-      const page = this.goods[type].page + 1;
-      getHomeGoods(type, page).then(res => {
-        this.goods[type].list.push(...res.data.list);
-        // apply的特殊用法
-        // Array.prototype.push.apply(this.goods[type].list, res.data.list)
-        this.goods[type].page = page;
-      });
+      let page = this.goods[type].page + 1;
+      page = 50;
+      getHomeGoods(type, page)
+        .then(res => {
+          console.log(res);
+          this.goods[type].list.push(...res.data.list);
+          // apply的特殊用法
+          // Array.prototype.push.apply(this.goods[type].list, res.data.list)
+          this.goods[type].page = page;
+        })
+        .catch(err => {
+          // 数据加载完成
+          this.$set(this.goods[type], "endStatus", true);
+        });
     },
     tabClick(index) {
       switch (index) {
@@ -116,16 +126,16 @@ export default {
           this.currentType = "sell";
       }
     },
-    backClick(){
-      this.$refs.scroll.scrollTo(0, 0)
+    backClick() {
+      this.$refs.scroll.scrollTo(0, 0);
     },
-    scrollPos(position){
+    scrollPos(position) {
       // 1.判断isShowBackTop是否显示
-      this.isShowBackTop = (- position.y) > 1000
+      this.isShowBackTop = -position.y > 1000;
     },
-    pullingUp(){
-      this.__getHomeGoods(this.currentType)
-      this.$refs.scroll.finishPullUp()
+    pullingUp() {
+      this.__getHomeGoods(this.currentType);
+      this.$refs.scroll.finishPullUp();
     }
   }
 };
@@ -147,22 +157,22 @@ export default {
   top: 0;
   z-index: 9;
 }
-.tab-control{
+.tab-control {
   position: sticky;
   top: 44px;
   z-index: 9;
 }
-  .content{
-    overflow: hidden;
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: 44px;
-    bottom: 49px;
-  }
-  /*.content{*/
-  /*  height: calc(100% - 93px);*/
-  /*  overflow: hidden;*/
-  /*  margin-top: 44px;*/
-  /*}*/
+.content {
+  overflow: hidden;
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 44px;
+  bottom: 49px;
+}
+/*.content{*/
+/*  height: calc(100% - 93px);*/
+/*  overflow: hidden;*/
+/*  margin-top: 44px;*/
+/*}*/
 </style>
