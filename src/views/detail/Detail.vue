@@ -1,10 +1,11 @@
 <template>
   <div id="detail">
-    <detail-nav-bar class="detail-nav"></detail-nav-bar>
-    <scroll class="content">
-      <detail-swiper :top-images="topImages"></detail-swiper>
-      <detail-base-info :goods="goods"></detail-base-info>
-      <detail-shop-info :shop="shop"></detail-shop-info>
+    <detail-nav-bar class="detail-nav" />
+    <scroll class="content" ref="scroll">
+      <detail-swiper :top-images="topImages" />
+      <detail-base-info :goods="goods" />
+      <detail-shop-info :shop="shop" />
+      <detail-goods-info :detail-info="detailInfo" @imageLoad="imageLoad"></detail-goods-info>
     </scroll>
   </div>
 </template>
@@ -14,10 +15,12 @@ import DetailNavBar from "./childComps/DetailNavBar";
 import DetailSwiper from "./childComps/DetailSwiper";
 import DetailBaseInfo from "./childComps/DetailBaseInfo";
 import DetailShopInfo from "./childComps/DetailShopInfo";
+import DetailGoodsInfo from "./childComps/DetailGoodsInfo";
 
 import Scroll from "components/common/scroll/Scroll";
 
 import { getDeatil, Goods, Shop } from "network/detail";
+
 export default {
   name: "Detail",
   props: {
@@ -38,7 +41,8 @@ export default {
     DetailSwiper,
     DetailBaseInfo,
     DetailShopInfo,
-    Scroll
+    Scroll,
+    DetailGoodsInfo
   },
   created() {
     // 1. 保存传入的id
@@ -57,8 +61,13 @@ export default {
       // 3.创建店铺信息的对象
       this.shop = new Shop(data.shopInfo);
       // 4.获取商品详细信息
-      this.detailInfo = data.detailInfo
+      this.detailInfo = data.detailInfo;
     });
+  },
+  methods: {
+    imageLoad(){
+      this.$refs.scroll.refresh()
+    }
   }
 };
 </script>

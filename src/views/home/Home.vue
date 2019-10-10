@@ -125,13 +125,13 @@ export default {
       });
     },
     __getHomeGoods(type) {
-      const page = this.goods[type].page + 1;
+      // this.goods[type].page会自增
+      const page = ++this.goods[type].page;
       getHomeGoods(type, page)
         .then(res => {
           this.goods[type].list.push(...res.data.list);
           // apply的特殊用法
           // Array.prototype.push.apply(this.goods[type].list, res.data.list)
-          this.goods[type].page = page;
           // 完成上拉加载更多
           this.$refs.scroll.finishPullUp();
         })
