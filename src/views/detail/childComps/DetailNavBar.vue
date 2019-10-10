@@ -2,7 +2,7 @@
   <div>
     <nav-bar>
       <div slot="left" class="back" @click="backClick">
-        <img src="~assets/img/common/back.svg" alt="">
+        <img src="~assets/img/common/back.svg" alt="" />
       </div>
       <div slot="center" class="title">
         <div
@@ -33,13 +33,13 @@ export default {
     };
   },
   methods: {
-    titleClick(index){
-      this.currentIndex = index
+    titleClick(index) {
+      this.currentIndex = index;
     },
-    backClick(){
+    backClick() {
       // 静态路由返回
       // this.$router.go(-1)
-      this.$router.back()
+      this.$router.back();
     }
   }
 };
@@ -56,7 +56,7 @@ export default {
 .active {
   color: var(--color-high-text);
 }
-  .back img{
-    margin-top: 12px;
-  }
+.back img {
+  margin-top: 12px;
+}
 </style>

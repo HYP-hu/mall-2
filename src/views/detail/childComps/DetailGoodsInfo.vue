@@ -34,9 +34,10 @@ export default {
   },
   methods: {
     imgLoad() {
-      if (++this.counter === this.imagesLength) {
-        this.$emit("imageLoad");
-      }
+      // if (++this.counter === this.imagesLength) {
+      //   this.$emit("detailImageLoad");
+      // }
+      this.$emit("detailImageLoad");
     }
   },
   // watch更加适用于监听某一个值得变化并做对应的操作,比如请求后台接口等

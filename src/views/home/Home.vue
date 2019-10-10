@@ -44,9 +44,9 @@ import HomeSwiper from "./childCompos/HomeSwiper";
 import RecommendView from "./childCompos/RecommendView";
 import FeatureView from "./childCompos/FeatureView";
 
-import {itemImgListenerMixin} from "common/mixin";
+import { itemImgListenerMixin } from "common/mixin";
 
-import { getHomeMultiData, getHomeGoods } from "../../network/home";
+import { getHomeMultiData, getHomeGoods } from "network/home";
 
 export default {
   name: "Home",
@@ -81,7 +81,7 @@ export default {
       return this.goods[this.currentType].list;
     }
   },
-  mixin: [itemImgListenerMixin],
+  mixins: [itemImgListenerMixin],
   created() {
     // 1.请求多个数据
     this.__getHomeMultiData();
@@ -91,15 +91,15 @@ export default {
     this.__getHomeGoods("new");
     this.__getHomeGoods("sell");
   },
-  activated(){
-    this.$refs.scroll.refresh()
-    this.$refs.scroll.scrollTo(0, this.scrollY, 0)
+  activated() {
+    this.$refs.scroll.refresh();
+    this.$refs.scroll.scrollTo(0, this.scrollY, 0);
   },
-  deactivated(){
+  deactivated() {
     // 1.保存Y值
-    this.scrollY = this.$refs.scroll.getScrollY()
+    this.scrollY = this.$refs.scroll.getScrollY();
     // 2.取消全局事件的监听
-    this.$bus.$off('itemImgLoad', this.itemImgListener)
+    this.$bus.$off("itemImgLoad", this.itemImgListener);
   },
   mounted() {
     // 获取tabControl的offsetTop
@@ -147,7 +147,7 @@ export default {
           break;
         case 2:
           this.currentType = "sell";
-          break
+          break;
       }
       // 改变tabControl组件中currentIndex的值, 如果采用props传值的方式改变index不推荐
       // 父组件不要改变子组件的值, 要让子组件自己改变
@@ -165,7 +165,7 @@ export default {
       // 1、 Math.ceil(-position.y)
       // 2、 0 || -position.y
       // 3、 parseInt(-position.y)
-      this.isTabFixed = -position.y >= this.tabOffsetTop
+      this.isTabFixed = -position.y >= this.tabOffsetTop;
     },
     pullingUp() {
       this.__getHomeGoods(this.currentType);
@@ -204,7 +204,7 @@ export default {
   /*top: 0;*/
   /*z-index: 9;*/
 }
-.tab-control1{
+.tab-control1 {
   /* 方法一*/
   position: relative;
   /*z-index只对定位的元素起效果*/
@@ -215,7 +215,6 @@ export default {
   /*left: 0;*/
   /*right: 0;*/
   /*top: 44px;*/
-
 }
 /*.tab-control {*/
 /*原生浏览器*/
