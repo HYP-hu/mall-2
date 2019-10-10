@@ -8,6 +8,7 @@
       <detail-goods-info :detail-info="detailInfo" @imageLoad="imageLoad" />
       <detail-param-info :param-info="paramInfo" />
       <detail-comment-info :comment-info="commentInfo" />
+      <goods-list :goods="recommends"></goods-list>
     </scroll>
   </div>
 </template>
@@ -23,7 +24,17 @@ import DetailCommentInfo from "./childComps/DetailCommentInfo";
 
 import Scroll from "components/common/scroll/Scroll";
 
-import { getDeatil, Goods, Shop, GoodsParam } from "network/detail";
+import GoodsList from "components/content/goods/GoodsList";
+
+import {itemImgListenerMixin} from "common/mixin";
+
+import {
+  getDeatil,
+  Goods,
+  Shop,
+  GoodsParam,
+  getRecommend
+} from "network/detail";
 
 export default {
   name: "Detail",
@@ -39,7 +50,8 @@ export default {
       shop: {},
       detailInfo: {},
       paramInfo: {},
-      commentInfo: {}
+      commentInfo: {},
+      recommends: []
     };
   },
   components: {
@@ -50,8 +62,10 @@ export default {
     Scroll,
     DetailGoodsInfo,
     DetailParamInfo,
-    DetailCommentInfo
+    DetailCommentInfo,
+    GoodsList
   },
+  mixin: [itemImgListenerMixin],
   created() {
     // 1. 保存传入的id
     // this.id = this.$route.params.id
@@ -77,9 +91,16 @@ export default {
         data.itemParams.rule
       );
       // 6.保存评论数据
-      console.log(data);
       this.commentInfo = data.rate.cRate !== 0 ? data.rate.list[0] : {};
     });
+    // 7. 请求推荐数据
+    getRecommend().then(res => {
+      this.recommends = res.data.list
+    });
+  },
+  destroyed(){
+    // 2.取消全局事件的监听
+    this.$bus.$off('itemImgLoad', this.itemImgListener)
   },
   methods: {
     imageLoad() {

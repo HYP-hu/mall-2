@@ -44,7 +44,7 @@ import HomeSwiper from "./childCompos/HomeSwiper";
 import RecommendView from "./childCompos/RecommendView";
 import FeatureView from "./childCompos/FeatureView";
 
-import { debounce } from "common/utils";
+import {itemImgListenerMixin} from "common/mixin";
 
 import { getHomeMultiData, getHomeGoods } from "../../network/home";
 
@@ -81,6 +81,7 @@ export default {
       return this.goods[this.currentType].list;
     }
   },
+  mixin: [itemImgListenerMixin],
   created() {
     // 1.请求多个数据
     this.__getHomeMultiData();
@@ -95,16 +96,12 @@ export default {
     this.$refs.scroll.scrollTo(0, this.scrollY, 0)
   },
   deactivated(){
+    // 1.保存Y值
     this.scrollY = this.$refs.scroll.getScrollY()
+    // 2.取消全局事件的监听
+    this.$bus.$off('itemImgLoad', this.itemImgListener)
   },
   mounted() {
-    // 3.事件总线 图片加载完成的事件监听
-    // 解决可滚动区域 scrollerHeight属性的大小
-    const refresh = debounce(this.$refs.scroll.refresh, 50);
-    this.$bus.$on("itemImageLoad", () => {
-      refresh();
-    });
-
     // 获取tabControl的offsetTop
     // 所有的组件都有一个属性$el; 用于获取组件中的元素
     // $nextTick的使用在组件属性渲染完成后再执行，比如添加组件并设置颜色，
