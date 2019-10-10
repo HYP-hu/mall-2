@@ -1,4 +1,6 @@
 import instance from "./requests";
+
+// 详情页的数据
 export function getDeatil(id) {
   return instance({
     url: "/api/v1/detail",
@@ -7,20 +9,20 @@ export function getDeatil(id) {
     }
   });
 }
-
+// 商品基本信息
 export class Goods {
   constructor(itemInfo, columns, services) {
-    this.title = itemInfo.title
-    this.desc = itemInfo.desc
-    this.newPrice = itemInfo.price
-    this.oldPrice = itemInfo.oldPrice
-    this.discount = itemInfo.discountDesc
-    this.columns = columns
-    this.services = services
-    this.realPrice = itemInfo.lowNowPrice
+    this.title = itemInfo.title;
+    this.desc = itemInfo.desc;
+    this.newPrice = itemInfo.price;
+    this.oldPrice = itemInfo.oldPrice;
+    this.discount = itemInfo.discountDesc;
+    this.columns = columns;
+    this.services = services;
+    this.realPrice = itemInfo.lowNowPrice;
   }
 }
-
+// 商家信息
 export class Shop {
   constructor(shopInfo) {
     this.logo = shopInfo.shopLogo;
@@ -28,6 +30,6 @@ export class Shop {
     this.fans = shopInfo.cFans;
     this.sells = shopInfo.cSells;
     this.score = shopInfo.score;
-    this.goodsCount = shopInfo.cGoods
+    this.goodsCount = shopInfo.cGoods;
   }
 }
