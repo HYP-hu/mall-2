@@ -15,7 +15,7 @@
       </div>
     </div>
     <div class="bar-item bar-right">
-      <div class="cart" >加入购物车</div>
+      <div class="cart" @click="addToCart">加入购物车</div>
       <div class="buy">购买</div>
     </div>
     <sport-ball ref="ball" class="sport-ball"></sport-ball>
@@ -42,13 +42,13 @@
 <style scoped>
   .bottom-bar {
     height: 58px;
-    /*position: fixed;*/
+    position: fixed;
     background-color: #fff;
-    position: relative;
+    /*position: relative;*/
     /*bottom: 58px;*/
-    /*left: 0;*/
-    /*right: 0;*/
-    /*bottom: 0;*/
+    left: 0;
+    right: 0;
+    bottom: 0;
 
     display: flex;
     text-align: center;

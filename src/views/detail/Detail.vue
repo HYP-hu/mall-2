@@ -17,7 +17,7 @@
       <detail-comment-info :comment-info="commentInfo" ref="detailComment" />
       <goods-list :goods="recommends" ref="detailRecommend" />
     </scroll>
-    <detail-bottom-bar />
+    <detail-bottom-bar @addToCart="addToCart" />
     <back-top @click.native="backClick" v-if="isShowBackTop"></back-top>
   </div>
 </template>
@@ -46,7 +46,8 @@ import {
 
 import { itemImgListenerMixin, backTopMixin } from "common/mixin";
 import { debounce } from "common/utils";
-import {TOP_DISTANCE} from "common/const"
+import { TOP_DISTANCE } from "common/const";
+import { mapActions, mapMutations } from "vuex";
 
 export default {
   name: "Detail",
@@ -174,7 +175,25 @@ export default {
       }
       this.isShowBackTop = -position.y > TOP_DISTANCE;
       //
-    }
+    },
+    addToCart() {
+      // 获取购物车需要展示的信息
+      if (this.goods) {
+        const product = {};
+        product.image = this.topImages[0];
+        product.title = this.goods.title;
+        product.desc = this.goods.desc;
+        product.price = this.goods.realPrice;
+        product.id = this.id;
+        // this.$store.dispatch('addCart',product)
+        // this.addCart(product)
+        this.add(product);
+      }
+    },
+    // mapActions 辅助函数
+    // ...mapActions(['addCart']),
+    // vuex中的addCart重命名为add
+    ...mapActions({ add: "addCart" })
   }
 };
 </script>
