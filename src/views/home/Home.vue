@@ -44,7 +44,8 @@ import HomeSwiper from "./childCompos/HomeSwiper";
 import RecommendView from "./childCompos/RecommendView";
 import FeatureView from "./childCompos/FeatureView";
 
-import { itemImgListenerMixin } from "common/mixin";
+import { itemImgListenerMixin, backTopMixin } from "common/mixin";
+import {TOP_DISTANCE} from "common/const"
 
 import { getHomeMultiData, getHomeGoods } from "network/home";
 
@@ -81,7 +82,7 @@ export default {
       return this.goods[this.currentType].list;
     }
   },
-  mixins: [itemImgListenerMixin],
+  mixins: [itemImgListenerMixin, backTopMixin],
   created() {
     // 1.请求多个数据
     this.__getHomeMultiData();
@@ -106,10 +107,11 @@ export default {
     // 所有的组件都有一个属性$el; 用于获取组件中的元素
     // $nextTick的使用在组件属性渲染完成后再执行，比如添加组件并设置颜色，
     // 设置颜色可以写在$nextTick中
-    this.$nextTick(() => {
-      // 此处$nextTick并无作用只是为了学习
-      this.getTabControlOffsetTop();
-    });
+    this.getTabControlOffsetTop();
+    // this.$nextTick(() => {
+    //   // 此处$nextTick并无作用只是为了学习
+    //
+    // });
   },
   methods: {
     /**
@@ -154,12 +156,9 @@ export default {
       this.$refs.tabControl1.currentIndex = index;
       this.$refs.tabControl2.currentIndex = index;
     },
-    backClick() {
-      this.$refs.scroll.scrollTo(0, 0);
-    },
     scrollPos(position) {
       // 1.判断isShowBackTop是否显示
-      this.isShowBackTop = -position.y > 1000;
+      this.isShowBackTop = -position.y > TOP_DISTANCE;
       // 2.决定tabControl是否吸顶
       // 取整的方法
       // 1、 Math.ceil(-position.y)

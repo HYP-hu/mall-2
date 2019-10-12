@@ -35,6 +35,7 @@ export default {
   methods: {
     titleClick(index) {
       this.currentIndex = index;
+      this.$emit('titleClick', index)
     },
     backClick() {
       // 静态路由返回
@@ -48,12 +49,13 @@ export default {
 <style scoped>
 .title {
   display: flex;
-  font-size: 12px;
+  padding: 0 20px;
 }
 .title-item {
   flex: 1;
+  font-size: 12px;
 }
-.active {
+ .active {
   color: var(--color-high-text);
 }
 .back img {

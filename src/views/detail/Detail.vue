@@ -1,7 +1,11 @@
 <template>
   <div id="detail">
-    <detail-nav-bar class="detail-nav" />
-    <scroll class="content" ref="scroll">
+    <detail-nav-bar
+      class="detail-nav"
+      @titleClick="titleClick"
+      ref="detailNavBar"
+    />
+    <scroll class="content" ref="scroll" :probeType="3" @scrollPos="scrollPos">
       <detail-swiper :top-images="topImages" />
       <detail-base-info :goods="goods" />
       <detail-shop-info :shop="shop" />
@@ -9,10 +13,12 @@
         :detail-info="detailInfo"
         @detailImageLoad="detailImageLoad"
       />
-      <detail-param-info :param-info="paramInfo" />
-      <detail-comment-info :comment-info="commentInfo" />
-      <goods-list :goods="recommends"></goods-list>
+      <detail-param-info :param-info="paramInfo" ref="detailParam" />
+      <detail-comment-info :comment-info="commentInfo" ref="detailComment" />
+      <goods-list :goods="recommends" ref="detailRecommend" />
     </scroll>
+    <detail-bottom-bar />
+    <back-top @click.native="backClick" v-if="isShowBackTop"></back-top>
   </div>
 </template>
 
@@ -24,6 +30,7 @@ import DetailShopInfo from "./childComps/DetailShopInfo";
 import DetailGoodsInfo from "./childComps/DetailGoodsInfo";
 import DetailParamInfo from "./childComps/DetailParamInfo";
 import DetailCommentInfo from "./childComps/DetailCommentInfo";
+import DetailBottomBar from "./childComps/DetailBottomBar";
 
 import Scroll from "components/common/scroll/Scroll";
 
@@ -31,13 +38,15 @@ import GoodsList from "components/content/goods/GoodsList";
 
 import {
   getDeatil,
+  getRecommend,
   Goods,
-  Shop,
   GoodsParam,
-  getRecommend
+  Shop
 } from "network/detail";
 
-import { itemImgListenerMixin } from "common/mixin";
+import { itemImgListenerMixin, backTopMixin } from "common/mixin";
+import { debounce } from "common/utils";
+import {TOP_DISTANCE} from "common/const"
 
 export default {
   name: "Detail",
@@ -54,7 +63,9 @@ export default {
       detailInfo: {},
       paramInfo: {},
       commentInfo: {},
-      recommends: []
+      recommends: [],
+      themeTopYs: [],
+      getThemeTopY: null // 函数
     };
   },
   components: {
@@ -66,9 +77,10 @@ export default {
     DetailGoodsInfo,
     DetailParamInfo,
     DetailCommentInfo,
-    GoodsList
+    GoodsList,
+    DetailBottomBar
   },
-  mixins: [itemImgListenerMixin],
+  mixins: [itemImgListenerMixin, backTopMixin],
   created() {
     // 1. 保存传入的id
     // this.id = this.$route.params.id
@@ -95,11 +107,50 @@ export default {
       );
       // 6.保存评论数据
       this.commentInfo = data.rate.cRate !== 0 ? data.rate.list[0] : {};
+      // this.$nextTick(() => {
+      //   // 根据最新的数据，对应的DOM是已经被渲染出来
+      //   // 但是图片依然是没有加载完(目前获取到offsetTop不包含其中的图片)
+      //   this.themeTopYs.push(this.$refs.detailParam.$el.offsetTop);
+      //   this.themeTopYs.push(this.$refs.detailComment.$el.offsetTop);
+      //   this.themeTopYs.push(this.$refs.detailRecommend.$el.offsetTop);
+      //   console.log(this.themeTopYs);
+      // });
     });
     // 7. 请求推荐数据
     getRecommend().then(res => {
       this.recommends = res.data.list;
     });
+    // 给getThemeTopY赋值(对给this.themeTopYs赋值得操作进行防抖)
+    this.getThemeTopY = debounce(() => {
+      this.themeTopYs = [0];
+      this.themeTopYs.push(this.$refs.detailParam.$el.offsetTop);
+      this.themeTopYs.push(this.$refs.detailComment.$el.offsetTop);
+      this.themeTopYs.push(this.$refs.detailRecommend.$el.offsetTop);
+      this.themeTopYs.push(Number.MAX_VALUE);
+    }, 100);
+  },
+  mounted() {
+    // console.log("mounted");
+    // 此时虽然模板已经渲染,但是数据可能还未请求到
+    // console.log(this.$refs.detailParam);
+    // console.log("=========");
+  },
+  watch: {
+    paramInfo() {
+      // 数据请求到但是请求到的数据未使模板重新渲染有v-if限制还未来得及渲染
+      // console.log("watch");
+      // console.log(this.paramInfo);
+      // console.log("watch: ", this.$refs.detailParam);
+    }
+  },
+  updated() {
+    // 可以实现但是数据更新会比较频繁
+    // console.log("updated", this.$refs.detailParam.$el);
+    // 不可以使用watch 因为this.$refs.detailParam
+    // this.themeTopYs = [0];
+    // this.themeTopYs.push(this.$refs.detailParam.$el.offsetTop);
+    // this.themeTopYs.push(this.$refs.detailComment.$el.offsetTop);
+    // this.themeTopYs.push(this.$refs.detailRecommend.$el.offsetTop);
   },
   destroyed() {
     // 2.取消全局事件的监听
@@ -108,6 +159,21 @@ export default {
   methods: {
     detailImageLoad() {
       this.newRefresh();
+      this.getThemeTopY();
+    },
+    titleClick(index) {
+      this.$refs.scroll.scrollTo(0, -this.themeTopYs[index]);
+      // this.$refs.detailNavBar.currentIndex = index
+    },
+    scrollPos(position) {
+      let index = this.themeTopYs.findIndex(value => {
+        return value > -position.y;
+      });
+      if (this.$refs.detailNavBar.currentIndex !== index - 1) {
+        this.$refs.detailNavBar.currentIndex = index - 1;
+      }
+      this.isShowBackTop = -position.y > TOP_DISTANCE;
+      //
     }
   }
 };
@@ -116,12 +182,13 @@ export default {
 <style scoped>
 #detail {
   position: relative;
-  z-index: 9;
+  z-index: 1;
   background-color: #fff;
   height: 100vh;
 }
 .content {
-  height: calc(100% - 44px);
+  position: relative;
+  height: calc(100% - 44px - 58px);
 }
 .detail-nav {
   position: relative;
