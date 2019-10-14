@@ -13,9 +13,9 @@ Vue.prototype.$bus = new Vue()
 Vue.use(toast)
 // 解决移动端300ms延迟
 
-// FastClick.attach(
-//     document.body
-// )
+FastClick.attach(
+    document.body
+)
 // 使用懒加载
 Vue.use(VueLazyLoad, {
   loading: require('assets/img/common/placeholder.png')
