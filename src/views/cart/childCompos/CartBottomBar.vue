@@ -52,7 +52,6 @@ export default {
       if(!this.checkLength){
         this.$toast.show('请选择购买的商品')
       }
-
     }
   }
 };

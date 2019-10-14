@@ -10,15 +10,19 @@ export default {
   data() {
     return {
       message: "",
-      isShow: false
+      isShow: false,
+      timer: null
     };
   },
   methods: {
     show(message, duration = 2000) {
-      setTimeout(() => {
-        this.message = "";
-        this.isShow = false;
-      }, duration);
+      this.message = message;
+      this.isShow = true;
+        if (this.timer) clearTimeout(this.timer);
+        this.timer = setTimeout(() => {
+          this.message = "";
+          this.isShow = false;
+        }, duration);
     }
   }
 };

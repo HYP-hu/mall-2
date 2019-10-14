@@ -2,7 +2,7 @@ import Toast from "./Toast";
 const obj = {};
 
 obj.install = function(Vue) {
-  // document.body.appendChild(Toast.$el)
+  //1document.body.appendChild(Toast.$el)
   // 1.创建构造器
   const toastConstructor = Vue.extend(Toast);
 
@@ -10,7 +10,7 @@ obj.install = function(Vue) {
   const toast = new toastConstructor();
 
   // 3.将组建对象挂载到某一个元素上
-  toast.$mount(document.createElement('div'));
+  toast.$mount(document.createElement("div"));
 
   // 4.toast.$el对应的就是div
   document.body.appendChild(toast.$el);
