@@ -2,7 +2,7 @@
   <div class="goods-item">
     <!--原生js监听图片 img.onload = function(){}-->
     <!-- vue直接使用@load就可以监听图片是否加载完成-->
-    <img :src="showImage" alt="" @load="imageLoad" @click="itemClick" />
+    <img v-lazy="showImage" alt="" @load="imageLoad" @click="itemClick" />
     <div class="goods-info">
       <p>{{ goodsItem.title }}</p>
       <span class="price">

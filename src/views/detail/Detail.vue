@@ -187,7 +187,11 @@ export default {
         product.id = this.id;
         // this.$store.dispatch('addCart',product)
         // this.addCart(product)
-        this.add(product);
+        this.add(product).then(res => {
+          this.$toast.show(res)
+
+        });
+
       }
     },
     // mapActions 辅助函数

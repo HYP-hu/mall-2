@@ -93,9 +93,6 @@ export default {
   line-height: 60px;
   /*height: 60px;*/
 }
-.info-service-item {
-  flex: 1;
-}
 
 .info-service-item img {
   width: 14px;
