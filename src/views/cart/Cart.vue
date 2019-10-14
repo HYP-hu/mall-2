@@ -7,6 +7,7 @@
     <!--商品列表-->
     <cart-list></cart-list>
     <!--底部汇总-->
+    <cart-bottom-bar></cart-bottom-bar>
   </div>
 </template>
 
@@ -16,11 +17,14 @@ import NavBar from "components/common/navbar/NavBar";
 import { mapGetters } from "vuex";
 
 import CartList from "./childCompos/CartList";
+import CartBottomBar from "./childCompos/CartBottomBar";
+
 export default {
   name: "Cart",
   components: {
     NavBar,
-    CartList
+    CartList,
+    CartBottomBar
   },
   computed: {
     // 两种语法

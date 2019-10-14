@@ -26,15 +26,14 @@ export default {
   },
   activated() {
     // 解决scrollHeight的问题，刷新高度使可滚动
-    this.$refs.scroll.refresh()
-
+    this.$refs.scroll.refresh();
   }
 };
 </script>
 
 <style scoped>
 .cart-list {
-  height: calc(100% - 93px);
+  height: calc(100% - 93px - 40px);
   /*position: relative;*/
   /*height: calc(100% - 93px);*/
 
